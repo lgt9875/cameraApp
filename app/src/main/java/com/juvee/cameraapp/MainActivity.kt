@@ -1,4 +1,4 @@
-package xyz.kkx2.cameraapp
+package com.juvee.cameraapp
 
 import android.Manifest
 import android.content.ContentValues
@@ -13,8 +13,6 @@ import android.os.Bundle
 import android.os.CountDownTimer
 import android.provider.MediaStore
 import android.util.Log
-import android.view.View
-import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.CameraSelector
@@ -26,7 +24,7 @@ import androidx.camera.video.*
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.PermissionChecker
-import xyz.kkx2.cameraapp.databinding.ActivityMainBinding
+import com.juvee.cameraapp.databinding.ActivityMainBinding
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.ExecutorService
@@ -63,7 +61,7 @@ class MainActivity : AppCompatActivity() , SensorEventListener {
 
     private var count = 0;
     private val sensorManager by lazy {
-        getSystemService(Context.SENSOR_SERVICE) as SensorManager  //센서 매니저에대한 참조를 얻기위함
+        getSystemService(SENSOR_SERVICE) as SensorManager  //센서 매니저에대한 참조를 얻기위함
     }
 
     override fun onResume() {
@@ -93,7 +91,7 @@ class MainActivity : AppCompatActivity() , SensorEventListener {
         }
 
         // Set up the listeners for take photo and video capture buttons
-        viewBinding.imageCaptureButton.setOnClickListener { takePhoto() }
+        val onClickListener = viewBinding.imageCaptureButton.setOnClickListener { takePhoto() }
         viewBinding.videoCaptureButton.setOnClickListener { captureVideo()  }
 
         //10초동안 1초반복

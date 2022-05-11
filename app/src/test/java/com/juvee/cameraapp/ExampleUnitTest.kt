@@ -1,4 +1,4 @@
-package xyz.kkx2.cameraapp
+package com.juvee.cameraapp
 
 import org.junit.Test
 

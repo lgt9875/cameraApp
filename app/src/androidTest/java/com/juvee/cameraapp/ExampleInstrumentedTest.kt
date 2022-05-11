@@ -1,4 +1,4 @@
-package xyz.kkx2.cameraapp
+package com.juvee.cameraapp
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -19,6 +19,6 @@ class ExampleInstrumentedTest {
     fun useAppContext() {
         // Context of the app under test.
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
-        assertEquals("xyz.kkx2.cameraapp", appContext.packageName)
+        assertEquals("com.juvee.cameraapp", appContext.packageName)
     }
 }
