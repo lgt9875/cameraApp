@@ -2,7 +2,6 @@ package com.juvee.cameraapp
 
 import android.Manifest
 import android.content.ContentValues
-import android.content.Context
 import android.content.pm.PackageManager
 import android.hardware.Sensor
 import android.hardware.SensorEvent
@@ -13,6 +12,7 @@ import android.os.Bundle
 import android.os.CountDownTimer
 import android.provider.MediaStore
 import android.util.Log
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.CameraSelector
@@ -24,11 +24,20 @@ import androidx.camera.video.*
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.PermissionChecker
+import com.google.gson.GsonBuilder
 import com.juvee.cameraapp.databinding.ActivityMainBinding
+import okhttp3.OkHttpClient
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
+
 
 typealias LumaListener = (luma: Double) -> Unit
 
@@ -36,6 +45,11 @@ typealias LumaListener = (luma: Double) -> Unit
 
 class MainActivity : AppCompatActivity() , SensorEventListener {
     private lateinit var viewBinding: ActivityMainBinding
+
+    var textView: TextView? = null
+    lateinit var retrofit: Retrofit
+    lateinit var jsonApi: JsonApi
+    lateinit var call: Call<Member>
 
     private var imageCapture: ImageCapture? = null
 
@@ -82,6 +96,8 @@ class MainActivity : AppCompatActivity() , SensorEventListener {
         viewBinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(viewBinding.root)
 
+
+
         // Request camera permissions
         if (allPermissionsGranted()) {
             startCamera()
@@ -119,9 +135,49 @@ class MainActivity : AppCompatActivity() , SensorEventListener {
             (_timer as CountDownTimer).cancel();
         }
 
+        viewBinding.javabutton.setOnClickListener {
+
+            val gson = GsonBuilder()
+                .setLenient()
+                .create()
+
+            retrofit = Retrofit.Builder()
+                .baseUrl("http://192.168.21.4:8080") //베이스 url등록
+                .addConverterFactory(GsonConverterFactory.create(gson))
+                .build();
+
+            jsonApi = retrofit.create(JsonApi::class.java)
+
+            call = jsonApi.getMember()
+            call.enqueue(object : Callback<Member> {
+                override fun onResponse(call: Call<Member>, response: Response<Member>) {
+                    if (response.isSuccessful()) {
+
+                        textView = viewBinding.javatextView
+                        textView!!.setText(response.body().toString())
+                    }else{
+                        textView = viewBinding.javatextView
+                        textView!!.setText("통신은 성공 응답문제")
+                    }
+                }
+
+                override fun onFailure(call: Call<Member>, t: Throwable) {
+                    Log.e("MainActivity!!!", "실패")
+                    textView = viewBinding.javatextView
+                    textView!!.setText("실패")
+                    t.printStackTrace()
+                }
+            })
+        }
+
+
+
+
 
         cameraExecutor = Executors.newSingleThreadExecutor()
     }
+
+
 
     private fun takePhoto() {
 
@@ -212,7 +268,7 @@ class MainActivity : AppCompatActivity() , SensorEventListener {
                 when(recordEvent) {
                     is VideoRecordEvent.Start -> {
                         viewBinding.videoCaptureButton.apply {
-                            text = getString(R.string.stop_capture)
+                            //text = getString(R.string.stop_capture)
                             isEnabled = true
                         }
                     }
@@ -230,7 +286,7 @@ class MainActivity : AppCompatActivity() , SensorEventListener {
                                     "${recordEvent.error}")
                         }
                         viewBinding.videoCaptureButton.apply {
-                            text = getString(R.string.start_capture)
+                            //text = getString(R.string.start_capture)
                             isEnabled = true
                         }
                     }
